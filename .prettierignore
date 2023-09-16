@@ -1,0 +1,9 @@
+**/node_modules
+**/libs
+dist
+/public
+*.min.js
+**/.angular
+**/coverage
+**/.vscode
+**/.idea

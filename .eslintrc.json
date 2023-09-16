@@ -1,0 +1,121 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint/eslint-plugin"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-console": "warn",
+    "linebreak-style": ["error", "unix"]
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": ["tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates"
+
+
+      ],
+      "rules": {
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "app",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "app",
+            "style": "kebab-case"
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": ["class", "interface"],
+            "format": ["PascalCase"]
+          },
+          {
+            "selector": ["classMethod", "classProperty", "accessor", "parameterProperty"],
+            "format": ["camelCase"],
+            "leadingUnderscore": "forbid"
+          },
+          {
+            "selector": ["classMethod", "classProperty", "accessor", "parameterProperty"],
+            "modifiers": ["protected"],
+            "format": ["camelCase"],
+            "leadingUnderscore": "forbid"
+          },
+          {
+            "selector": ["classMethod", "classProperty", "accessor", "parameterProperty"],
+            "modifiers": ["private"],
+            "format": ["camelCase"],
+            "leadingUnderscore": "require"
+          },
+          {
+            "selector": ["classProperty"],
+            "modifiers": ["static", "readonly"],
+            "format": ["UPPER_CASE"]
+          },
+          {
+            "selector": ["classProperty"],
+            "modifiers": ["static", "private", "readonly"],
+            "format": ["UPPER_CASE"],
+            "leadingUnderscore": "require"
+          },
+          {
+            "selector": ["classProperty"],
+            "modifiers": ["static", "protected", "readonly"],
+            "format": ["UPPER_CASE"],
+            "leadingUnderscore": "require"
+          },
+          {
+            "selector": "enumMember",
+            "format": ["UPPER_CASE"]
+          }
+        ],
+        "import/no-extraneous-dependencies": "off",
+        "@typescript-eslint/quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true,
+            "allowTemplateLiterals": true
+          }
+        ],
+        "@typescript-eslint/prefer-readonly": [
+          "error",
+          {
+            "onlyInlineLambdas": true
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended",
+        "plugin:@angular-eslint/template/accessibility"
+      ],
+      "rules": {}
+    }
+  ]
+}
