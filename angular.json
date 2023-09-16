@@ -19,7 +19,7 @@
           "options": {
             "outputPath": "dist/angular-starter",
             "index": "src/index.html",
-            "main": "src/main.ts",
+            "main": "src/main.browser.ts",
             "polyfills": [
               "zone.js"
             ],
