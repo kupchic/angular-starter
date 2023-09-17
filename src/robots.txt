@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api
+Crawl-delay: 60
+
+User-agent: Yandex
+Allow: /
+Disallow: /api
+Crawl-delay: 60
+
+Sitemap: https://www.example.com/sitemap.xml

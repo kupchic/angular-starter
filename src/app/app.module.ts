@@ -1,27 +1,12 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { APP_ID, NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { NgxTranslateHttpLoader } from '@shared/i18n-loaders';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { provideClientHydration } from '@angular/platform-browser';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    TranslateModule.forRoot({
-      defaultLanguage: 'en',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: NgxTranslateHttpLoader,
-        deps: [HttpClient],
-      },
-    }),
-  ],
-  providers: [],
+  imports: [AppRoutingModule],
+  providers: [{ provide: APP_ID, useValue: 'serverApp' }, provideClientHydration()],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
