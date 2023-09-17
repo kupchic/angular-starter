@@ -18,6 +18,10 @@
     "prettier-check": "prettier --check \"**/*.{js,ts,json,html,scss}\""
   },
   "private": true,
+  "browser": {
+    "fs": false,
+    "path": false
+  },
   "dependencies": {
     "@angular/animations": "^16.2.0",
     "@angular/common": "^16.2.0",
