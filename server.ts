@@ -1,11 +1,12 @@
 import 'zone.js/node';
 import { APP_BASE_HREF } from '@angular/common';
 import { ngExpressEngine, NgSetupOptions } from '@nguniversal/express-engine';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { AppServerModule } from './src/main.server';
 import compression from 'compression';
+import { REQUEST, RESPONSE } from '@nguniversal/express-engine/tokens';
 
 function shouldCompress(req: Request, res: Response): boolean {
   if (req.headers['x-no-compression']) {
@@ -28,6 +29,7 @@ export function app(): express.Express {
     'html',
     ngExpressEngine({
       bootstrap: AppServerModule,
+      inlineCriticalCss: false,
     } as NgSetupOptions),
   );
 
@@ -44,9 +46,33 @@ export function app(): express.Express {
     }),
   );
 
+  server.get('*', (req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('X-Frame-Options', 'DENY');
+    next();
+  });
+
   // All regular routes use the Universal engine
   server.get('*', (req: Request, res: Response) => {
-    res.render(indexHtml, { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] });
+    const filePath: string = join(distFolder, req.path, 'index.html');
+    // For prerender, use exists file
+    if (existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.render(indexHtml, {
+        req,
+        providers: [
+          { provide: APP_BASE_HREF, useValue: req.baseUrl },
+          {
+            provide: REQUEST,
+            useValue: req,
+          },
+          {
+            provide: RESPONSE,
+            useValue: res,
+          },
+        ],
+      });
+    }
   });
 
   return server;
