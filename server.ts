@@ -1,37 +1,21 @@
 import 'zone.js/node';
+
 import { APP_BASE_HREF } from '@angular/common';
-import { ngExpressEngine, NgSetupOptions } from '@nguniversal/express-engine';
+import { CommonEngine } from '@angular/ssr';
 import express, { NextFunction, Request, Response } from 'express';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { AppServerModule } from './src/main.server';
-import compression from 'compression';
-import { REQUEST, RESPONSE } from '@nguniversal/express-engine/tokens';
+import { AppServerModule } from './src/app/app.server.module';
 
-function shouldCompress(req: Request, res: Response): boolean {
-  if (req.headers['x-no-compression']) {
-    // don't compress responses with this request header
-    return false;
-  }
-  // fallback to standard filter function
-  return compression.filter(req, res);
-}
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   const server = express();
-  server.use(compression({ filter: shouldCompress }));
+  const distFolder = join(process.cwd(), 'dist/angular-starter/browser');
+  const indexHtml = existsSync(join(distFolder, 'index.original.html'))
+    ? join(distFolder, 'index.original.html')
+    : join(distFolder, 'index.html');
 
-  const distFolder = join(process.cwd(), 'dist/angular-starter/browser'); //TODO replace with app name
-  const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
-
-  // Our Universal express-engine (found @ https://github.com/angular/universal/tree/main/modules/express-engine)
-  server.engine(
-    'html',
-    ngExpressEngine({
-      bootstrap: AppServerModule,
-      inlineCriticalCss: false,
-    } as NgSetupOptions),
-  );
+  const commonEngine = new CommonEngine();
 
   server.set('view engine', 'html');
   server.set('views', distFolder);
@@ -46,33 +30,20 @@ export function app(): express.Express {
     }),
   );
 
+  // All regular routes use the Angular engine
   server.get('*', (req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('X-Frame-Options', 'DENY');
-    next();
-  });
+    const { protocol, originalUrl, baseUrl, headers } = req;
 
-  // All regular routes use the Universal engine
-  server.get('*', (req: Request, res: Response) => {
-    const filePath: string = join(distFolder, req.path, 'index.html');
-    // For prerender, use exists file
-    if (existsSync(filePath)) {
-      res.sendFile(filePath);
-    } else {
-      res.render(indexHtml, {
-        req,
-        providers: [
-          { provide: APP_BASE_HREF, useValue: req.baseUrl },
-          {
-            provide: REQUEST,
-            useValue: req,
-          },
-          {
-            provide: RESPONSE,
-            useValue: res,
-          },
-        ],
-      });
-    }
+    commonEngine
+      .render({
+        bootstrap: AppServerModule,
+        documentFilePath: indexHtml,
+        url: `${protocol}://${headers.host}${originalUrl}`,
+        publicPath: distFolder,
+        providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+      })
+      .then((html) => res.send(html))
+      .catch((err) => next(err));
   });
 
   return server;
