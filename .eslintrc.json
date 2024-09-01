@@ -2,7 +2,12 @@
   "root": true,
   "ignorePatterns": ["projects/**/*"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint/eslint-plugin"],
+  "plugins": ["@typescript-eslint/eslint-plugin", "prettier"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
   "rules": {
     "prettier/prettier": "error",
     "no-console": ["error", { "allow": ["warn", "error"] }],
@@ -12,8 +17,7 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": ["tsconfig.json"],
-        "createDefaultProgram": true
+        "project": ["tsconfig.json"]
       },
       "extends": [
         "eslint:recommended",
